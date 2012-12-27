@@ -52,12 +52,12 @@ exports.BattleAbilities = {
 		num: 91
 	},
 	"aftermath": {
-		desc: "If a contact move knocks out this Pokemon, the opponent receives damage equal to one-fourth of its max HP.",
-		shortDesc: "If this Pokemon is KOed with a contact move, that move's user loses 1/4 its max HP.",
+		desc: "When this Pokemon gets KOed, the opponent receives damage equal to one-fourth of its max HP.",
+		shortDesc: "When this Pokemon is KOed, its foe loses 1/4 its max HP.",
 		id: "aftermath",
 		name: "Aftermath",
 		onFaint: function(target, source, effect) {
-			if (effect && effect.effectType === 'Move' && effect.isContact && source) {
+			if (effect && effect.effectType === 'Move' && source) {
 				this.damage(source.maxhp/4, source, target);
 			}
 		},
