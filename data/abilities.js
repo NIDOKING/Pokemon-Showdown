@@ -2684,4 +2684,197 @@ exports.BattleAbilities = {
 		rating: 4,
 		num: -4
 	}
+
+	//They're blatanty flying~
+	"swartate": {
+		desc: "This Pokemon is immune to Ground-type attacks, Spikes, Toxic Spikes and the Arena Trap ability; it loses these immunities while holding Iron Ball, after using Ingrain or if Gravity is in effect. When its health reaches one-third or less of its max HP, this Pokemon's Bug-type attacks receive a 50% boost in power.",
+		shortDesc: "This Pokemon is immune to Ground and when it has 1/3 or less of its max HP, its Bug attacks do 1.5x damage.",
+		onImmunity: function(type) {
+			if (type === 'Ground') return false;
+		},
+		onBasePower: function(basePower, attacker, defender, move) {
+			if (move.type === 'Bug' && attacker.hp <= attacker.maxhp/3) {
+				this.debug('Swarm boost');
+				return basePower * 1.5;
+			}
+		},
+		id: "swartate",
+		name: "Swartate",
+		rating: 3.5,
+		num: 34001
+	},
+	"harvetate": {
+		desc: "This Pokemon is immune to Ground-type attacks, Spikes, Toxic Spikes and the Arena Trap ability; it loses these immunities while holding Iron Ball, after using Ingrain or if Gravity is in effect; When the user uses a held Berry, it is restored at the end of the turn.",
+		shortDesc: "This Pokemon is immune to Ground and has a 50% chance that its Berry is restored at the end of each turn. 100% in Sun.",
+		onImmunity: function(type) {
+			if (type === 'Ground') return false;
+		},
+		onResidualOrder: 26,
+		onResidualSubOrder: 1,
+		onResidual: function(pokemon) {
+			if (this.isWeather('sunnyday') || this.random(2) === 0) {
+				if (!pokemon.item && this.getItem(pokemon.lastItem).isBerry) {
+						pokemon.setItem(pokemon.lastItem);
+						this.add("-item", pokemon, pokemon.item, '[from] ability: Harvetate');
+				}
+			}
+		},
+		id: "harvetate",
+		name: "Harvetate",
+		rating: 3.5,
+		num: 34002
+	},
+	"snipate": {
+		desc: "This Pokemon is immune to Ground-type attacks, Spikes, Toxic Spikes and the Arena Trap ability; it loses these immunities while holding Iron Ball, after using Ingrain or if Gravity is in effect; When this Pokemon lands a Critical Hit, the base power of its attack is tripled rather than doubled.",
+		shortDesc: "This Pokemon is immune to Ground and does triple damage when it scores a Critical Hit.",
+		onImmunity: function(type) {
+			if (type === 'Ground') return false;
+		},
+		onModifyMove: function(move) {
+			move.critModifier = 3;
+		},
+		id: "snipate",
+		name: "Snipate",
+		rating: 3.5,
+		num: 34003
+	},
+	"levidust": {
+		desc: "This Pokemon is immune to Ground-type attacks, Spikes, Toxic Spikes and the Arena Trap ability; it loses these immunities while holding Iron Ball, after using Ingrain or if Gravity is in effect; If the opponent uses a move that has secondary effects that affect this Pokemon in addition to damage, the move's secondary effects will not trigger. (For example, an Ice Beam will lose its 10% chance to freeze this Pokemon.)",
+		shortDesc: "This Pokemon is immune to Ground and secondary effect of another Pokemon's attack.",
+		onImmunity: function(type) {
+			if (type === 'Ground') return false;
+		},
+		onTrySecondaryHit: function() {
+			this.debug('Levidust prevent secondary');
+			return null;
+		},
+		id: "levidust",
+		name: "Levidust",
+		rating: 4,
+		num: 34004
+	},
+	"levilens": {
+		desc: "This Pokemon is immune to Ground-type attacks, Spikes, Toxic Spikes and the Arena Trap ability; it loses these immunities while holding Iron Ball, after using Ingrain or if Gravity is in effect; Doubles the power of moves that are Not Very Effective against opponents.",
+		shortDesc: "This Pokemon is immune to Ground and doubles the power of moves that are Not Very Effective against opponents.",
+		onImmunity: function(type) {
+			if (type === 'Ground') return false;
+		},
+		onBasePowerPriority: -100,
+		onBasePower: function(basePower, attacker, defender, move) {
+			if (this.getEffectiveness(move.type, defender) < 0) {
+				this.debug('Levilens boost');
+				return basePower * 2;
+			}
+		},
+		id: "levilens",
+		name: "Levilens",
+		rating: 4,
+		num: 34005
+	},
+	"leviskin": {
+		desc: "This Pokemon is immune to Ground-type attacks, Spikes, Toxic Spikes and the Arena Trap ability; it loses these immunities while holding Iron Ball, after using Ingrain or if Gravity is in effect; Causes the chance of a status move working to be halved. It does not affect moves that inflict status as a secondary effect like Thunder's chance to paralyze.",
+		shortDesc: "This Pokemon is immune to Ground and forces all status moves with a set % accuracy to 50% accuracy if used on this Pokemon.",
+		onImmunity: function(type) {
+			if (type === 'Ground') return false;
+		},
+		onSourceModifyMovePriority: 10,
+		onSourceModifyMove: function(move) {
+			if (move.category === 'Status' && typeof move.accuracy === 'number') {
+				this.debug('setting move accuracy to 50%');
+				move.accuracy = 50;
+			}
+		},
+		id: "leviskin",
+		name: "Leviskin",
+		rating: 3.5,
+		num: 34006
+	},
+	"levipull": {
+		desc: "This Pokemon is immune to Ground-type attacks, Spikes, Toxic Spikes and the Arena Trap ability; it loses these immunities while holding Iron Ball, after using Ingrain or if Gravity is in effect; When this Pokemon enters the field, Steel-type opponents cannot switch out nor flee the battle unless they are holding Shed Shell or use the attacks U-Turn or Baton Pass.",
+		shortDesc: "This Pokemon is immune to Ground and prevents Steel-type foes from switching out normally.",
+		onImmunity: function(type) {
+			if (type === 'Ground') return false;
+		},
+		onFoeModifyPokemon: function(pokemon) {
+			if (pokemon.hasType('Steel')) {
+				pokemon.trapped = true;
+			}
+		},
+		id: "levipull",
+		name: "Levipull",
+		rating: 5,
+		num: 34007
+	},
+	"sturtate": {
+		desc: "This Pokemon is immune to Ground-type attacks, Spikes, Toxic Spikes and the Arena Trap ability; it loses these immunities while holding Iron Ball, after using Ingrain or if Gravity is in effect; This Pokemon is immune to OHKO moves, and will survive with 1 HP if hit by an attack which would KO it while at full health.",
+		shortDesc: "This Pokemon is immune to Ground and if this Pokemon is at full HP, it lives one hit with at least 1HP. OHKO moves fail on it.",
+		onImmunity: function(type) {
+			if (type === 'Ground') return false;
+		},
+		onDamagePriority: -100,
+		onDamage: function(damage, target, source, effect) {
+			if (effect && effect.ohko) {
+				this.add('-activate',target,'Sturtate');
+				return 0;
+			}
+			if (target.hp === target.maxhp && damage >= target.hp && effect && effect.effectType === 'Move') {
+				this.add('-activate',target,'Sturtate');
+				return target.hp - 1;
+			}
+		},
+		id: "sturtate",
+		name: "Sturtate",
+		rating: 4,
+		num: 34008
+	},
+	"levilytic": {
+		desc: "This Pokemon is immune to Ground-type attacks, Spikes, Toxic Spikes and the Arena Trap ability; it loses these immunities while holding Iron Ball, after using Ingrain or if Gravity is in effect; If the user moves last, the power of that move is increased by 30%.",
+		shortDesc: "This Pokemon is immune to Ground and its attacks do 1.3x damage if it is the last to move in a turn.",
+		onImmunity: function(type) {
+			if (type === 'Ground') return false;
+		},
+		onBasePower: function(basePower, attacker, defender, move) {
+			if (!this.willMove(defender)) {
+				this.debug('Levilytic boost');
+				return basePower * 1.3;
+			}
+		},
+		id: "levilytic",
+		name: "Levilytic",
+		rating: 3.5,
+		num: 34009
+	},
+	"pranktate": {
+		desc: "This Pokemon is immune to Ground-type attacks, Spikes, Toxic Spikes and the Arena Trap ability; it loses these immunities while holding Iron Ball, after using Ingrain or if Gravity is in effect; Increases the priority of non-damaging moves by 1.",
+		shortDesc: "This Pokemon is immune to Ground and its non-damaging moves have their priority increased by 1.",
+		onImmunity: function(type) {
+			if (type === 'Ground') return false;
+		},
+		onModifyPriority: function(priority, pokemon, target, move) {
+			if (move && move.category === 'Status') {
+				return priority + 1;
+			}
+			return priority;
+		},
+		id: "pranktate",
+		name: "Pranktate",
+		rating: 5,
+		num: 34010
+	},
+	"Levimath": {
+		desc: "This Pokemon is immune to Ground-type attacks, Spikes, Toxic Spikes and the Arena Trap ability; it loses these immunities while holding Iron Ball, after using Ingrain or if Gravity is in effect; When this Pokemon gets KOed, the opponent receives damage equal to one-fourth of its max HP.",
+		shortDesc: "This Pokemon is immune to Ground and when it's KOed, its foe loses 1/4 its max HP.",
+		onImmunity: function(type) {
+			if (type === 'Ground') return false;
+		},
+		onFaint: function(target, source, effect) {
+			if (effect && effect.effectType === 'Move' && source) {
+				this.damage(source.maxhp/4, source, target);
+			}
+		},
+		id: "levimath",
+		name: "Levimath",
+		rating: 3.5,
+		num: 34011
+	},
 };
