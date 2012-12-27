@@ -52,12 +52,12 @@ exports.BattleAbilities = {
 		num: 91
 	},
 	"aftermath": {
-		desc: "If a contact move knocks out this Pokemon, the opponent receives damage equal to one-fourth of its max HP.",
-		shortDesc: "If this Pokemon is KOed with a contact move, that move's user loses 1/4 its max HP.",
+		desc: "When this Pokemon gets KOed, the opponent receives damage equal to one-fourth of its max HP.",
+		shortDesc: "When this Pokemon is KOed, its foe loses 1/4 its max HP.",
 		id: "aftermath",
 		name: "Aftermath",
 		onFaint: function(target, source, effect) {
-			if (effect && effect.effectType === 'Move' && effect.isContact && source) {
+			if (effect && effect.effectType === 'Move' && source) {
 				this.damage(source.maxhp/4, source, target);
 			}
 		},
@@ -496,7 +496,7 @@ exports.BattleAbilities = {
 	"filter": {
 		desc: "This Pokemon receives one-fourth reduced damage from Super Effective attacks.",
 		shortDesc: "This Pokemon receives 3/4 damage from super effective attacks.",
-		onSourceBasePower: function(basePower, attacker, defender, move) {
+		onFoeBasePower: function(basePower, attacker, defender, move) {
 			if (this.getEffectiveness(move.type, defender) > 0) {
 				this.debug('Filter neutralize');
 				return basePower * 3/4;
@@ -730,7 +730,7 @@ exports.BattleAbilities = {
 				return basePower / 2;
 			}
 		},
-		onDamage: function(damage, target, source, effect) {
+		onDamage: function(damage, attacker, defender, effect) {
 			if (effect && effect.id === 'brn') {
 				return damage / 2;
 			}
@@ -1757,11 +1757,11 @@ exports.BattleAbilities = {
 		onImmunity: function(type, pokemon) {
 			if (type === 'sandstorm') return false;
 		},
-		onAccuracy: function(accuracy) {
-			if (typeof accuracy !== 'number') return;
+		onSourceModifyMove: function(move) {
+			if (typeof move.accuracy !== 'number') return;
 			if (this.isWeather('sandstorm')) {
-				this.debug('Sand Veil - decreasing accuracy');
-				return accuracy * 0.8;
+				this.debug('sand veil - decreasing accuracy');
+				move.accuracy *= 0.8;
 			}
 		},
 		id: "sandveil",
@@ -1947,11 +1947,11 @@ exports.BattleAbilities = {
 		onImmunity: function(type, pokemon) {
 			if (type === 'hail') return false;
 		},
-		onAccuracy: function(accuracy) {
-			if (typeof accuracy !== 'number') return;
+		onSourceModifyMove: function(move) {
+			if (typeof move.accuracy !== 'number') return;
 			if (this.isWeather('hail')) {
-				this.debug('Snow Cloak - decreasing accuracy');
-				return accuracy * 0.8;
+				this.debug('snow cloak - decreasing accuracy');
+				move.accuracy *= 0.8;
 			}
 		},
 		id: "snowcloak",
@@ -1992,7 +1992,7 @@ exports.BattleAbilities = {
 	"solidrock": {
 		desc: "This Pokemon receives one-fourth reduced damage from Super Effective attacks.",
 		shortDesc: "This Pokemon receives 3/4 damage from super effective attacks.",
-		onSourceBasePower: function(basePower, attacker, defender, move) {
+		onFoeBasePower: function(basePower, attacker, defender, move) {
 			if (this.getEffectiveness(move.type, defender) > 0) {
 				this.debug('Solid Rock neutralize');
 				return basePower * 3/4;
@@ -2204,11 +2204,9 @@ exports.BattleAbilities = {
 	"tangledfeet": {
 		desc: "When this Pokemon is confused, its opponent's attacks have a 50% chance of missing.",
 		shortDesc: "This Pokemon's evasion is doubled as long as it is confused.",
-		onAccuracy: function(accuracy, target) {
-			if (typeof accuracy !== 'number') return;
-			if (target && target.volatiles['confusion']) {
-				this.debug('Tangled Feet - decreasing accuracy');
-				return accuracy * 0.5;
+		onSourceModifyMove: function(move, source, target) {
+			if (target && target.volatiles['confusion'] && move.accuracy !== true) {
+				move.accuracy /= 2;
 			}
 		},
 		id: "tangledfeet",
@@ -2570,11 +2568,11 @@ exports.BattleAbilities = {
 	"wonderskin": {
 		desc: "Causes the chance of a status move working to be halved. It does not affect moves that inflict status as a secondary effect like Thunder's chance to paralyze.",
 		shortDesc: "All status moves with a set % accuracy are 50% accurate if used on this Pokemon.",
-		onAccuracyPriority: 10,
-		onAccuracy: function(accuracy, target, source, move) {
+		onSourceModifyMovePriority: 10,
+		onSourceModifyMove: function(move) {
 			if (move.category === 'Status' && typeof move.accuracy === 'number') {
-				this.debug('Wonder Skin - setting accuracy to 50');
-				return 50;
+				this.debug('setting move accuracy to 50%');
+				move.accuracy = 50;
 			}
 		},
 		id: "wonderskin",
